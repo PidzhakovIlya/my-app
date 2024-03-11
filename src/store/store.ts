@@ -1,5 +1,10 @@
-import {configureStore} from "@reduxjs/toolkit";
+import {combineReducers, configureStore} from "@reduxjs/toolkit";
 import {api} from "../api/api";
+
+
+const rootReducer= combineReducers({
+    [api.reducerPath]:api.reducer
+})
 
 export const store = configureStore({
     reducer: {

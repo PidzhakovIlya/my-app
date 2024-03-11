@@ -1,5 +1,6 @@
 import React from "react";
-import PostList from "../../components/PostList/PostList";
+// import PostListTEST from "../../components/PostListTEST/PostListTEST";
+import {PostList} from "../../components/PostList/PostList";
 
 
 export const PostsPage: React.FC = () => {

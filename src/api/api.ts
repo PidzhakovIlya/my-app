@@ -5,11 +5,21 @@ export const api = createApi({
     reducerPath: "api",
     baseQuery: fetchBaseQuery({baseUrl: "https://jsonplaceholder.typicode.com"}),
     endpoints: (builder) => ({
-        getPosts: builder.query<Array<PostType>, number>({
-            query: (page) => `/posts?_page=${page}&_limit=10`}),
+        // getPosts: builder.query<Array<PostType>, number>({
+        //     query: (page) => `/posts?_page=${page}&_limit=10`}),
         getPost: builder.query<PostType, number>({
             query: (id) => `/posts/${id}`
-        })
+        }),
+        getPosts: builder.query<Array<PostType>,{limit:number,start:number}>({
+            query:({limit=5, start=0 })=>({
+                url:'/posts',
+                params:
+                    {
+                        _limit:limit,
+                        _start:start,
+                    }
+            })
+        }),
     })
 })
 
