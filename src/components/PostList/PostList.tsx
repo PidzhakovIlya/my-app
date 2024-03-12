@@ -1,54 +1,61 @@
 import React, {useEffect, useState} from "react";
-import {api} from "../../api/api";
+import {useGetPostsQuery} from "../../api/api";
 import Post from "../Post/Post";
+import {PostType} from "../../features/posts/types";
+import {CellMeasurer, CellMeasurerCache, List as VirtualizedList} from "react-virtualized";
 
+const cellCache = new CellMeasurerCache({
+    fixedWidth: true,
+    defaultHeight: 50,
+});
 
 export const PostList: React.FC = () => {
-    const [currentPostStart,setCurrentPostStart]=useState(0)
-    const {data:posts, isLoading} =api.useGetPostsQuery({limit:50,start:currentPostStart})
-    const [isMyFetching,setIsFetchingDown]=useState(false)
-    const [isMyFetchingUp,setIsMyFetchingUp]=useState(false)
-    useEffect(()=>{
-        if(isMyFetching)
-        {
-            setCurrentPostStart(prev=>{
-                return prev<50?prev+2:prev
-            })
-            setIsFetchingDown(false)
+    const [posts, setPosts] = useState<Array<PostType>>([]);
+    const {data, isFetching, refetch} = useGetPostsQuery(1);
+    console.log(posts)
+
+    useEffect(() => {
+        if (data) {
+            setPosts((prev) => [...prev, ...data]);
         }
-    },[isMyFetching])
-    useEffect(()=>{
-        if(isMyFetchingUp)
-        {
-            setCurrentPostStart(prev=>{
-                return prev>0?prev-2:prev
-            })
-            setIsMyFetchingUp(false)
-        }
-    },[isMyFetchingUp])
-    useEffect(()=>{
-        document.addEventListener('scroll',scrollHandler)
-        return ()=>{
-            document.removeEventListener('scroll',scrollHandler)
-        }
-    },[])
-    const scrollHandler=(e:any):void=>{
-        if(e.target.documentElement.scrollTop<100)
-        {
-            setIsMyFetchingUp(true)
-        }
-        if(e.target.documentElement.scrollHeight-e.target.documentElement.scrollTop-window.innerHeight<50)
-        {
-            setIsFetchingDown(true)
-            window.scrollTo(0,(e.target.documentElement.scrollHeight + e.target.documentElement.scrollTop));
-        }
-    }
+    }, [data]);
+
+    // const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    //     const {scrollTop, clientHeight, scrollHeight} = event.currentTarget;
+    //
+    //     if (scrollHeight - scrollTop === clientHeight) {
+    //         refetch();
+    //     }
+    // };
+
+    const rowRenderer = ({index, key, style, parent}: any) => {
+        const post = posts[index];
+
+        return (
+            <CellMeasurer
+                key={key}
+                cache={cellCache}
+                columnIndex={0}
+                rowIndex={index}
+                parent={parent}
+            >
+                <div style={style}>
+                    <Post post={post}/>
+                </div>
+            </CellMeasurer>
+        );
+    };
+
     return (
-        <div>
-            <div className='post__list'>
-                {posts?.map(post=><Post key={post.id} post={post}/>)}
-            </div>
-            {isLoading&&<div>Загрузка данных</div>}
+        <div className={'postList'}>
+            <VirtualizedList
+                height={200}
+                rowCount={posts.length}
+                rowHeight={cellCache.rowHeight}
+                rowRenderer={rowRenderer}
+                width={1000}
+            />
+            {isFetching && <div>Loading...</div>}
         </div>
     );
 };
