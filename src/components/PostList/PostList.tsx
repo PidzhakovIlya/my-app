@@ -11,7 +11,7 @@ const cellCache = new CellMeasurerCache({
 
 export const PostList: React.FC = () => {
     const [posts, setPosts] = useState<Array<PostType>>([]);
-    const {data, isFetching, refetch} = useGetPostsQuery(1);
+    const {data, isFetching} = useGetPostsQuery(1);
     console.log(posts)
 
     useEffect(() => {
@@ -20,13 +20,6 @@ export const PostList: React.FC = () => {
         }
     }, [data]);
 
-    // const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
-    //     const {scrollTop, clientHeight, scrollHeight} = event.currentTarget;
-    //
-    //     if (scrollHeight - scrollTop === clientHeight) {
-    //         refetch();
-    //     }
-    // };
 
     const rowRenderer = ({index, key, style, parent}: any) => {
         const post = posts[index];
